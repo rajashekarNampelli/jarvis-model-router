@@ -17,6 +17,26 @@ class OllamaProvider(LLMProvider):
     def __init__(self, base_url: str | None = None, timeout: int | None = None) -> None:
         self._base_url = (base_url or settings.ollama_url).rstrip("/")
         self._timeout = timeout or settings.request_timeout
+        self._client: httpx.AsyncClient | None = None
+
+    # ------------------------------------------------------------------
+    # Client lifecycle — single shared connection pool
+    # ------------------------------------------------------------------
+
+    def _get_client(self) -> httpx.AsyncClient:
+        """Lazy-init a long-lived AsyncClient for connection reuse."""
+        if self._client is None or self._client.is_closed:
+            self._client = httpx.AsyncClient(
+                base_url=self._base_url,
+                timeout=httpx.Timeout(self._timeout, connect=10.0),
+            )
+        return self._client
+
+    async def close(self) -> None:
+        """Gracefully shut down the connection pool. Call on app shutdown."""
+        if self._client and not self._client.is_closed:
+            await self._client.aclose()
+            logger.info("OllamaProvider connection pool closed")
 
     # ------------------------------------------------------------------
     # Public interface
@@ -28,11 +48,11 @@ class OllamaProvider(LLMProvider):
 
         for attempt in range(1, _MAX_RETRIES + 1):
             try:
-                async with self._client() as client:
-                    resp = await client.post("/api/generate", json=payload)
-                    resp.raise_for_status()
-                    data = resp.json()
-                    return data.get("response", "")
+                client = self._get_client()
+                resp = await client.post("/api/generate", json=payload)
+                resp.raise_for_status()
+                data = resp.json()
+                return data.get("response", "")
             except httpx.TimeoutException as exc:
                 last_exc = exc
                 logger.warning("Ollama timeout on attempt %d/%d", attempt, _MAX_RETRIES)
@@ -52,21 +72,21 @@ class OllamaProvider(LLMProvider):
         payload = {"model": model, "prompt": prompt, "stream": True}
 
         try:
-            async with self._client() as client:
-                async with client.stream("POST", "/api/generate", json=payload) as resp:
-                    resp.raise_for_status()
-                    async for line in resp.aiter_lines():
-                        if not line:
-                            continue
-                        try:
-                            chunk = json.loads(line)
-                        except json.JSONDecodeError:
-                            continue
-                        token = chunk.get("response", "")
-                        if token:
-                            yield token
-                        if chunk.get("done"):
-                            break
+            client = self._get_client()
+            async with client.stream("POST", "/api/generate", json=payload) as resp:
+                resp.raise_for_status()
+                async for line in resp.aiter_lines():
+                    if not line:
+                        continue
+                    try:
+                        chunk = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    token = chunk.get("response", "")
+                    if token:
+                        yield token
+                    if chunk.get("done"):
+                        break
         except httpx.TimeoutException as exc:
             raise ProviderTimeout("Ollama stream timed out") from exc
         except httpx.HTTPStatusError as exc:
@@ -78,18 +98,8 @@ class OllamaProvider(LLMProvider):
 
     async def health(self) -> bool:
         try:
-            async with httpx.AsyncClient(base_url=self._base_url, timeout=5) as client:
-                resp = await client.get("/")
-                return resp.status_code < 500
+            client = self._get_client()
+            resp = await client.get("/", timeout=5)
+            return resp.status_code < 500
         except Exception:
             return False
-
-    # ------------------------------------------------------------------
-    # Helpers
-    # ------------------------------------------------------------------
-
-    def _client(self) -> httpx.AsyncClient:
-        return httpx.AsyncClient(
-            base_url=self._base_url,
-            timeout=httpx.Timeout(self._timeout, connect=10.0),
-        )

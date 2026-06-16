@@ -16,8 +16,9 @@ async def chat(request: ChatRequest) -> ChatResponse:
 
 @router.post("/v1/chat/stream")
 async def chat_stream(request: ChatRequest) -> StreamingResponse:
-    async def token_generator():
+    async def sse_generator():
         async for token in _inference.stream(request):
-            yield token
+            yield f"data: {token}\n\n"
+        yield "data: [DONE]\n\n"
 
-    return StreamingResponse(token_generator(), media_type="text/plain")
+    return StreamingResponse(sse_generator(), media_type="text/event-stream")

@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, patch
 
 from app.schemas.chat import ChatRequest
 from app.services.inference_service import InferenceService
@@ -15,7 +15,9 @@ def service():
 async def test_generate_returns_chat_response(service: InferenceService) -> None:
     req = ChatRequest(message="Write Java unit test", model="auto")
 
-    with patch("app.services.inference_service._provider") as mock_provider:
+    with patch("app.routing.classifier._llm_classify", new_callable=AsyncMock) as mock_llm, \
+         patch("app.services.inference_service._provider") as mock_provider:
+        mock_llm.return_value = "qwen"
         mock_provider.generate = AsyncMock(return_value="Here is a unit test...")
 
         result = await service.generate(req)
@@ -62,7 +64,9 @@ async def test_stream_yields_tokens(service: InferenceService) -> None:
         for token in ["Quick", "sort", " is", " fast"]:
             yield token
 
-    with patch("app.services.inference_service._provider") as mock_provider:
+    with patch("app.routing.classifier._llm_classify", new_callable=AsyncMock) as mock_llm, \
+         patch("app.services.inference_service._provider") as mock_provider:
+        mock_llm.return_value = "deepseek"
         mock_provider.stream = fake_stream
 
         tokens = []

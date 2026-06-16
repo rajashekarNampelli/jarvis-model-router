@@ -1,11 +1,11 @@
 import psutil
 from fastapi import APIRouter
 
-from app.providers.ollama_provider import OllamaProvider
+from app.providers import _provider
 from app.schemas.response import HealthResponse, MemoryInfo
 
 router = APIRouter()
-_provider = OllamaProvider()
+
 
 
 def _memory_info() -> MemoryInfo:

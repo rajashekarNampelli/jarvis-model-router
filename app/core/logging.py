@@ -4,6 +4,16 @@ import sys
 from typing import Any
 
 
+# Keys that our JSONFormatter should include from the extra dict.
+# Everything else in record.__dict__ is internal Python logging noise.
+_LOG_STRUCT_KEYS = frozenset({
+    "request_id", "model", "latency_ms", "success",
+    "prompt_length", "prompt_tokens_approx",
+    "method", "path", "status_code",
+    "error", "detail",
+})
+
+
 class JSONFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         log_obj: dict[str, Any] = {
@@ -11,8 +21,10 @@ class JSONFormatter(logging.Formatter):
             "logger": record.name,
             "message": record.getMessage(),
         }
-        if hasattr(record, "extra"):
-            log_obj.update(record.extra)
+        # Pull structured keys from record.__dict__ (set via `extra={}`)
+        for key in _LOG_STRUCT_KEYS:
+            if key in record.__dict__:
+                log_obj[key] = record.__dict__[key]
         if record.exc_info:
             log_obj["exception"] = self.formatException(record.exc_info)
         return json.dumps(log_obj)
@@ -47,21 +59,14 @@ def log_request(
     prompt_tokens_approx: int,
 ) -> None:
     """Emit a structured per-request log. Never logs the prompt itself."""
-    record = logger.makeRecord(
-        logger.name,
-        logging.INFO,
-        fn="",
-        lno=0,
-        msg="request_completed",
-        args=(),
-        exc_info=None,
+    logger.info(
+        "request_completed",
+        extra={
+            "request_id": request_id,
+            "model": model,
+            "latency_ms": latency_ms,
+            "success": success,
+            "prompt_length": prompt_length,
+            "prompt_tokens_approx": prompt_tokens_approx,
+        },
     )
-    record.extra = {  # type: ignore[attr-defined]
-        "request_id": request_id,
-        "model": model,
-        "latency_ms": latency_ms,
-        "success": success,
-        "prompt_length": prompt_length,
-        "prompt_tokens_approx": prompt_tokens_approx,
-    }
-    logger.handle(record)

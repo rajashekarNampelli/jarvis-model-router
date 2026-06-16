@@ -18,7 +18,7 @@ async def test_chat_endpoint_success(client) -> None:
 
         resp = await client.post(
             "/v1/chat",
-            json={"message": "Write Java unit test", "model": "auto", "stream": False},
+            json={"message": "Write Java unit test", "model": "auto"},
         )
 
     assert resp.status_code == 200
@@ -59,11 +59,14 @@ async def test_chat_stream_endpoint(client) -> None:
 
         resp = await client.post(
             "/v1/chat/stream",
-            json={"message": "Say hello", "model": "auto", "stream": True},
+            json={"message": "Say hello", "model": "auto"},
         )
 
     assert resp.status_code == 200
-    assert "Hello" in resp.text
+    assert "text/event-stream" in resp.headers.get("content-type", "")
+    assert "data: Hello" in resp.text
+    assert "data:  world" in resp.text
+    assert "data: [DONE]" in resp.text
 
 
 @pytest.mark.anyio

@@ -25,3 +25,6 @@ htmlcov/
 .cursor/
 .idea/
 .vscode/
+PLAN.html
+test_results/COMPARISON.html
+test_results/smoke_20260616_230227Z.json

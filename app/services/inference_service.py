@@ -5,7 +5,7 @@ from typing import AsyncIterator
 from app.core.exceptions import JarvisBaseError, ProviderError
 from app.core.logging import get_logger, log_request
 from app.metrics.prometheus import record_error, record_request, record_tokens
-from app.providers.ollama_provider import OllamaProvider
+from app.providers import _provider
 from app.schemas.chat import ChatRequest
 from app.schemas.response import ChatResponse
 from app.services.router_service import RouterService
@@ -13,13 +13,13 @@ from app.services.router_service import RouterService
 logger = get_logger(__name__)
 
 _router = RouterService()
-_provider = OllamaProvider()
+
 
 
 class InferenceService:
     async def generate(self, request: ChatRequest) -> ChatResponse:
         request_id = str(uuid.uuid4())
-        model_key, ollama_model = _router.route(request)
+        model_key, ollama_model = await _router.route(request)
         start = time.monotonic()
         success = True
         response_text = ""
@@ -62,7 +62,7 @@ class InferenceService:
 
     async def stream(self, request: ChatRequest) -> AsyncIterator[str]:
         request_id = str(uuid.uuid4())
-        model_key, ollama_model = _router.route(request)
+        model_key, ollama_model = await _router.route(request)
         start = time.monotonic()
         success = True
         token_buffer: list[str] = []
