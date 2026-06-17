@@ -2,7 +2,7 @@ import time
 import uuid
 from typing import AsyncIterator
 
-from app.core.exceptions import JarvisBaseError, ProviderError
+from app.core.exceptions import JarvisBaseError, ProviderError, RateLimitError
 from app.core.logging import get_logger, log_request
 from app.metrics.prometheus import record_error, record_request, record_tokens
 from app.providers import _provider
@@ -15,17 +15,21 @@ logger = get_logger(__name__)
 _router = RouterService()
 
 
-
 class InferenceService:
     async def generate(self, request: ChatRequest) -> ChatResponse:
         request_id = str(uuid.uuid4())
         model_key, ollama_model = await _router.route(request)
+
         start = time.monotonic()
         success = True
         response_text = ""
 
         try:
             response_text = await _provider.generate(ollama_model, request.message)
+        except RateLimitError:
+            success = False
+            record_error(model_key, "rate_limit")
+            raise
         except JarvisBaseError as exc:
             success = False
             record_error(model_key, type(exc).__name__)
@@ -63,6 +67,7 @@ class InferenceService:
     async def stream(self, request: ChatRequest) -> AsyncIterator[str]:
         request_id = str(uuid.uuid4())
         model_key, ollama_model = await _router.route(request)
+
         start = time.monotonic()
         success = True
         token_buffer: list[str] = []
@@ -71,6 +76,10 @@ class InferenceService:
             async for token in _provider.stream(ollama_model, request.message):
                 token_buffer.append(token)
                 yield token
+        except RateLimitError:
+            success = False
+            record_error(model_key, "rate_limit")
+            raise
         except JarvisBaseError as exc:
             success = False
             record_error(model_key, type(exc).__name__)

@@ -30,6 +30,16 @@ class ModelNotFound(JarvisBaseError):
     error_code = "model_not_found"
 
 
+class RateLimitError(JarvisBaseError):
+    status_code = 429
+    error_code = "rate_limit"
+
+
+class CircuitOpenError(JarvisBaseError):
+    status_code = 503
+    error_code = "circuit_open"
+
+
 # ---------------------------------------------------------------------------
 # FastAPI exception handlers
 # ---------------------------------------------------------------------------

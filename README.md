@@ -1,13 +1,14 @@
 # Jarvis Model Router
 
-A Phase 1 FastAPI service that routes chat requests to Ollama-backed models using deterministic rules, with streaming, Prometheus metrics, health checks, and structured logging.
+A FastAPI service that routes chat requests to Ollama-backed models using an LLM-based classifier, with streaming, Prometheus metrics, health checks, and structured logging.
 
-## Phase 1 Features
+## Features
 
 - Chat requests (`POST /v1/chat`)
-- Deterministic model routing (keyword-based)
+- LLM-based model routing (a small classifier model picks `qwen` / `deepseek` / `llama`)
+- In-process LRU cache for routing decisions (repeated prompts pay zero classifier cost)
 - Streaming responses (`POST /v1/chat/stream`)
-- Ollama integration
+- Ollama integration with circuit breaker + error isolation
 - Prometheus metrics (`GET /metrics`)
 - Health checks (`GET /health`)
 
@@ -125,10 +126,14 @@ curl http://localhost:8000/v1/models
 
 Pass `"model": "auto"` to let the router decide, or specify a key directly:
 
-- `"model": "auto"` — keyword-based routing
+- `"model": "auto"` — LLM classifier routes to `qwen` / `deepseek` / `llama`
 - `"model": "qwen"` — force Qwen (coding)
 - `"model": "deepseek"` — force DeepSeek (reasoning)
 - `"model": "llama"` — force Llama (general)
+
+The classifier model and timeout are configurable via env vars
+(`CLASSIFIER_MODEL`, `CLASSIFIER_TIMEOUT`). On any classifier failure the
+router falls back to `llama` so the request still succeeds.
 
 ## Running Tests
 
@@ -145,7 +150,7 @@ app/
 ├── schemas/        # Pydantic request/response models
 ├── services/       # Router and inference orchestration
 ├── providers/      # LLM provider abstractions
-├── routing/        # Deterministic classifier + model registry
+├── routing/        # LLM classifier + model registry
 ├── metrics/        # Prometheus instrumentation
 ├── middleware/      # Request logging middleware
 └── tests/          # pytest test suite

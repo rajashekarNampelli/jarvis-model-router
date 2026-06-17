@@ -13,7 +13,9 @@ def router():
 
 @pytest.mark.anyio
 async def test_auto_routes_code_to_qwen(router: RouterService) -> None:
-    with patch("app.routing.classifier._llm_classify", new_callable=AsyncMock) as mock_llm:
+    with patch(
+        "app.routing.classifier._llm_classify", new_callable=AsyncMock
+    ) as mock_llm:
         mock_llm.return_value = "qwen"
         req = ChatRequest(message="Write a Java unit test", model="auto")
         key, name = await router.route(req)
@@ -23,7 +25,9 @@ async def test_auto_routes_code_to_qwen(router: RouterService) -> None:
 
 @pytest.mark.anyio
 async def test_auto_routes_reasoning_to_deepseek(router: RouterService) -> None:
-    with patch("app.routing.classifier._llm_classify", new_callable=AsyncMock) as mock_llm:
+    with patch(
+        "app.routing.classifier._llm_classify", new_callable=AsyncMock
+    ) as mock_llm:
         mock_llm.return_value = "deepseek"
         req = ChatRequest(message="Prove Pythagoras theorem", model="auto")
         key, name = await router.route(req)
@@ -33,7 +37,9 @@ async def test_auto_routes_reasoning_to_deepseek(router: RouterService) -> None:
 
 @pytest.mark.anyio
 async def test_auto_routes_general_to_llama(router: RouterService) -> None:
-    with patch("app.routing.classifier._llm_classify", new_callable=AsyncMock) as mock_llm:
+    with patch(
+        "app.routing.classifier._llm_classify", new_callable=AsyncMock
+    ) as mock_llm:
         mock_llm.return_value = "llama"
         req = ChatRequest(message="What is the weather today?", model="auto")
         key, name = await router.route(req)

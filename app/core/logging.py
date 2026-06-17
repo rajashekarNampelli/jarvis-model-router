@@ -6,12 +6,21 @@ from typing import Any
 
 # Keys that our JSONFormatter should include from the extra dict.
 # Everything else in record.__dict__ is internal Python logging noise.
-_LOG_STRUCT_KEYS = frozenset({
-    "request_id", "model", "latency_ms", "success",
-    "prompt_length", "prompt_tokens_approx",
-    "method", "path", "status_code",
-    "error", "detail",
-})
+_LOG_STRUCT_KEYS = frozenset(
+    {
+        "request_id",
+        "model",
+        "latency_ms",
+        "success",
+        "prompt_length",
+        "prompt_tokens_approx",
+        "method",
+        "path",
+        "status_code",
+        "error",
+        "detail",
+    }
+)
 
 
 class JSONFormatter(logging.Formatter):

@@ -9,7 +9,9 @@ from app.routing.classifier import classify
 
 @pytest.mark.anyio
 async def test_llm_classify_code() -> None:
-    with patch("app.routing.classifier._llm_classify", new_callable=AsyncMock) as mock_llm:
+    with patch(
+        "app.routing.classifier._llm_classify", new_callable=AsyncMock
+    ) as mock_llm:
         mock_llm.return_value = "qwen"
         result = await classify("Write a Rust web server")
         assert result == "qwen"
@@ -17,7 +19,9 @@ async def test_llm_classify_code() -> None:
 
 @pytest.mark.anyio
 async def test_llm_classify_reasoning() -> None:
-    with patch("app.routing.classifier._llm_classify", new_callable=AsyncMock) as mock_llm:
+    with patch(
+        "app.routing.classifier._llm_classify", new_callable=AsyncMock
+    ) as mock_llm:
         mock_llm.return_value = "deepseek"
         result = await classify("Prove Pythagoras theorem")
         assert result == "deepseek"
@@ -25,7 +29,9 @@ async def test_llm_classify_reasoning() -> None:
 
 @pytest.mark.anyio
 async def test_llm_classify_general() -> None:
-    with patch("app.routing.classifier._llm_classify", new_callable=AsyncMock) as mock_llm:
+    with patch(
+        "app.routing.classifier._llm_classify", new_callable=AsyncMock
+    ) as mock_llm:
         mock_llm.return_value = "llama"
         result = await classify("Tell me a story about dragons")
         assert result == "llama"
@@ -34,7 +40,9 @@ async def test_llm_classify_general() -> None:
 @pytest.mark.anyio
 async def test_llm_classify_none_defaults_to_llama() -> None:
     """If LLM returns None (unparseable or failed), default to general."""
-    with patch("app.routing.classifier._llm_classify", new_callable=AsyncMock) as mock_llm:
+    with patch(
+        "app.routing.classifier._llm_classify", new_callable=AsyncMock
+    ) as mock_llm:
         mock_llm.return_value = None
         result = await classify("Write a Python function")
         assert result == "llama"  # safe default
@@ -43,7 +51,9 @@ async def test_llm_classify_none_defaults_to_llama() -> None:
 @pytest.mark.anyio
 async def test_llm_classify_failure_defaults_to_llama() -> None:
     """If LLM throws, default to general."""
-    with patch("app.routing.classifier._llm_classify", new_callable=AsyncMock) as mock_llm:
+    with patch(
+        "app.routing.classifier._llm_classify", new_callable=AsyncMock
+    ) as mock_llm:
         mock_llm.side_effect = Exception("Ollama down")
         result = await classify("Solve this differential equation")
         assert result == "llama"  # safe default
@@ -58,9 +68,13 @@ async def test_llm_classify_empty_defaults_to_llama() -> None:
 @pytest.mark.anyio
 async def test_llm_classify_jdk_routes_code() -> None:
     """The JDK prompt that misrouted with keyword classifier -- LLM catches it."""
-    with patch("app.routing.classifier._llm_classify", new_callable=AsyncMock) as mock_llm:
+    with patch(
+        "app.routing.classifier._llm_classify", new_callable=AsyncMock
+    ) as mock_llm:
         mock_llm.return_value = "qwen"
-        result = await classify("What are the key differences between JDK 8 and JDK 21?")
+        result = await classify(
+            "What are the key differences between JDK 8 and JDK 21?"
+        )
         assert result == "qwen"
 
 
@@ -71,9 +85,12 @@ async def test_llm_classify_jdk_routes_code() -> None:
 async def test_classify_caches_result() -> None:
     """Second call with same prompt should use cache (no second LLM call)."""
     from app.routing.classifier import _cache
+
     _cache._store.clear()
 
-    with patch("app.routing.classifier._llm_classify", new_callable=AsyncMock) as mock_llm:
+    with patch(
+        "app.routing.classifier._llm_classify", new_callable=AsyncMock
+    ) as mock_llm:
         mock_llm.return_value = "qwen"
         result1 = await classify("Build a Spring Boot app")
         result2 = await classify("Build a Spring Boot app")
@@ -87,9 +104,12 @@ async def test_classify_caches_result() -> None:
 async def test_classify_caches_llama_on_failure() -> None:
     """Failed classification should cache the fallback so we don't retry."""
     from app.routing.classifier import _cache
+
     _cache._store.clear()
 
-    with patch("app.routing.classifier._llm_classify", new_callable=AsyncMock) as mock_llm:
+    with patch(
+        "app.routing.classifier._llm_classify", new_callable=AsyncMock
+    ) as mock_llm:
         mock_llm.return_value = None
         result1 = await classify("Something ambiguous")
         result2 = await classify("Something ambiguous")

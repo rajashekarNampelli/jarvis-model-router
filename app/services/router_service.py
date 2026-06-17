@@ -2,7 +2,7 @@
 RouterService — the brain of the routing layer.
 
 Resolves the model key from a request:
-  - "auto"         → classifier decides (LLM-first, keyword fallback)
+  - "auto"         → LLM classifier decides (falls back to default model on failure)
   - explicit key   → validated against registry
 
 Returns a (model_key, ollama_model_name) tuple.
