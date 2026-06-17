@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, patch
 
 @pytest.mark.anyio
 async def test_health_ollama_up(client) -> None:
-    with patch("app.api.health._provider") as mock_provider:
+    with patch("jarvis_model_router.api.health._provider") as mock_provider:
         mock_provider.health = AsyncMock(return_value=True)
 
         resp = await client.get("/health")
@@ -19,7 +19,7 @@ async def test_health_ollama_up(client) -> None:
 
 @pytest.mark.anyio
 async def test_health_ollama_down(client) -> None:
-    with patch("app.api.health._provider") as mock_provider:
+    with patch("jarvis_model_router.api.health._provider") as mock_provider:
         mock_provider.health = AsyncMock(return_value=False)
 
         resp = await client.get("/health")
@@ -32,7 +32,7 @@ async def test_health_ollama_down(client) -> None:
 
 @pytest.mark.anyio
 async def test_health_memory_fields(client) -> None:
-    with patch("app.api.health._provider") as mock_provider:
+    with patch("jarvis_model_router.api.health._provider") as mock_provider:
         mock_provider.health = AsyncMock(return_value=True)
 
         resp = await client.get("/health")

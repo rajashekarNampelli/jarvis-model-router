@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.routing.rules import MODEL_REGISTRY
+from jarvis_model_router.routing.rules import MODEL_REGISTRY
 
 router = APIRouter()
 

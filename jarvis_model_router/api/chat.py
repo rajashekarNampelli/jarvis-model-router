@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 
-from app.schemas.chat import ChatRequest
-from app.schemas.response import ChatResponse
-from app.services.inference_service import InferenceService
+from jarvis_model_router.schemas.chat import ChatRequest
+from jarvis_model_router.schemas.response import ChatResponse
+from jarvis_model_router.services.inference_service import InferenceService
 
 router = APIRouter()
 _inference = InferenceService()

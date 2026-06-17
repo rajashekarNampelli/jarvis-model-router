@@ -5,8 +5,8 @@ When the user says "commit my changes", "commit and push", or similar.
 
 ## Pre-flight Checks
 
-1. **Run unit tests** — `pytest app/tests/ -v` — all must pass before committing
-2. **Run linter** — `ruff check --select F401,F841,F811 app/ smoke_test.py` — zero errors
+1. **Run unit tests** — `pytest -v` — all must pass before committing
+2. **Run linter** — `ruff check --select F401,F841,F811 jarvis_model_router/ smoke_test.py` — zero errors
 3. **Check git status** — `git status --short` — see what's changed
 
 ## Staging

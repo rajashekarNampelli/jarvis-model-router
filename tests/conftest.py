@@ -1,7 +1,7 @@
 import pytest
 from httpx import AsyncClient, ASGITransport
 
-from app.main import app
+from jarvis_model_router.main import app
 
 
 @pytest.fixture

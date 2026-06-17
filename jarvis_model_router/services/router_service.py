@@ -8,10 +8,10 @@ Resolves the model key from a request:
 Returns a (model_key, ollama_model_name) tuple.
 """
 
-from app.core.exceptions import ModelNotFound
-from app.routing.classifier import classify
-from app.routing.rules import MODEL_REGISTRY
-from app.schemas.chat import ChatRequest
+from jarvis_model_router.core.exceptions import ModelNotFound
+from jarvis_model_router.routing.classifier import classify
+from jarvis_model_router.routing.rules import MODEL_REGISTRY
+from jarvis_model_router.schemas.chat import ChatRequest
 
 
 class RouterService:

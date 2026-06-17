@@ -3,24 +3,24 @@ from typing import AsyncIterator
 
 import httpx
 
-from app.core.config import settings
-from app.core.exceptions import (
+from jarvis_model_router.core.config import settings
+from jarvis_model_router.core.exceptions import (
     CircuitOpenError,
     ProviderError,
     ProviderTimeout,
     RateLimitError,
 )
-from app.core.logging import get_logger
-from app.resilience.circuit_breaker import (
+from jarvis_model_router.core.logging import get_logger
+from jarvis_model_router.resilience.circuit_breaker import (
     CircuitBreaker,
     CircuitOpenError as _CBCircuitOpenError,
 )
-from app.resilience.error_isolation import (
+from jarvis_model_router.resilience.error_isolation import (
     ErrorCategory,
     ErrorIsolator,
     categorize_http_status,
 )
-from app.providers.base import LLMProvider
+from jarvis_model_router.providers.base import LLMProvider
 
 logger = get_logger(__name__)
 

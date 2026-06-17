@@ -21,9 +21,9 @@ Why LLM (not keywords)?
 
 from collections import OrderedDict
 
-from app.core.config import settings
-from app.core.logging import get_logger
-from app.routing.rules import DEFAULT_MODEL_KEY
+from jarvis_model_router.core.config import settings
+from jarvis_model_router.core.logging import get_logger
+from jarvis_model_router.routing.rules import DEFAULT_MODEL_KEY
 
 logger = get_logger(__name__)
 
@@ -128,7 +128,7 @@ def _parse_category(raw: str) -> str | None:
 
 async def _llm_classify(prompt: str) -> str | None:
     """Ask the classifier LLM; return a model key or None on any failure."""
-    from app.providers import _provider
+    from jarvis_model_router.providers import _provider
 
     truncated = prompt[:_CLASSIFIER_PROMPT_CHAR_LIMIT]
     classifier_input = f"{_CLASSIFIER_SYSTEM}\n\nPrompt: {truncated}\nAnswer:"

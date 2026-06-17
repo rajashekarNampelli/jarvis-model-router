@@ -5,7 +5,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
-from app.core.logging import get_logger
+from jarvis_model_router.core.logging import get_logger
 
 logger = get_logger("jarvis.access")
 

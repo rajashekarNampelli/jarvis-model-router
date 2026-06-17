@@ -59,7 +59,7 @@ cp .env.example .env
 ### 4. Run the API server
 
 ```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn jarvis_model_router.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 The API is now available at `http://localhost:8000`.
@@ -138,20 +138,24 @@ router falls back to `llama` so the request still succeeds.
 ## Running Tests
 
 ```bash
-pytest app/tests/ -v
+pytest -v
 ```
 
 ## Project Structure
 
 ```
-app/
-├── api/            # FastAPI route handlers
-├── core/           # Config, logging, exceptions
-├── schemas/        # Pydantic request/response models
-├── services/       # Router and inference orchestration
-├── providers/      # LLM provider abstractions
-├── routing/        # LLM classifier + model registry
-├── metrics/        # Prometheus instrumentation
-├── middleware/      # Request logging middleware
-└── tests/          # pytest test suite
+jarvis-model-router/                  # repo
+├── jarvis_model_router/              # Python package (production code)
+│   ├── api/                          # FastAPI route handlers
+│   ├── core/                         # Config, logging, exceptions
+│   ├── schemas/                      # Pydantic request/response models
+│   ├── services/                     # Router and inference orchestration
+│   ├── providers/                    # LLM provider abstractions
+│   ├── routing/                      # LLM classifier + model registry
+│   ├── resilience/                   # Circuit breaker + error isolation
+│   ├── metrics/                      # Prometheus instrumentation
+│   └── middleware/                   # Request logging middleware
+├── tests/                            # Pytest suite (sibling, not bundled)
+├── requirements.txt                  # Runtime + dev deps
+└── pytest.ini
 ```

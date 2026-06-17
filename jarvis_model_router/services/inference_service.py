@@ -2,13 +2,21 @@ import time
 import uuid
 from typing import AsyncIterator
 
-from app.core.exceptions import JarvisBaseError, ProviderError, RateLimitError
-from app.core.logging import get_logger, log_request
-from app.metrics.prometheus import record_error, record_request, record_tokens
-from app.providers import _provider
-from app.schemas.chat import ChatRequest
-from app.schemas.response import ChatResponse
-from app.services.router_service import RouterService
+from jarvis_model_router.core.exceptions import (
+    JarvisBaseError,
+    ProviderError,
+    RateLimitError,
+)
+from jarvis_model_router.core.logging import get_logger, log_request
+from jarvis_model_router.metrics.prometheus import (
+    record_error,
+    record_request,
+    record_tokens,
+)
+from jarvis_model_router.providers import _provider
+from jarvis_model_router.schemas.chat import ChatRequest
+from jarvis_model_router.schemas.response import ChatResponse
+from jarvis_model_router.services.router_service import RouterService
 
 logger = get_logger(__name__)
 

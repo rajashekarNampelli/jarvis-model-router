@@ -1,9 +1,9 @@
 import pytest
 from unittest.mock import AsyncMock, patch
 
-from app.schemas.chat import ChatRequest
-from app.services.inference_service import InferenceService
-from app.core.exceptions import ProviderError
+from jarvis_model_router.schemas.chat import ChatRequest
+from jarvis_model_router.services.inference_service import InferenceService
+from jarvis_model_router.core.exceptions import ProviderError
 
 
 @pytest.fixture
@@ -17,9 +17,12 @@ async def test_generate_returns_chat_response(service: InferenceService) -> None
 
     with (
         patch(
-            "app.routing.classifier._llm_classify", new_callable=AsyncMock
+            "jarvis_model_router.routing.classifier._llm_classify",
+            new_callable=AsyncMock,
         ) as mock_llm,
-        patch("app.services.inference_service._provider") as mock_provider,
+        patch(
+            "jarvis_model_router.services.inference_service._provider"
+        ) as mock_provider,
     ):
         mock_llm.return_value = "qwen"
         mock_provider.generate = AsyncMock(return_value="Here is a unit test...")
@@ -43,7 +46,9 @@ async def test_generate_tracks_latency(service: InferenceService) -> None:
         await asyncio.sleep(0.05)
         return "Once upon a time..."
 
-    with patch("app.services.inference_service._provider") as mock_provider:
+    with patch(
+        "jarvis_model_router.services.inference_service._provider"
+    ) as mock_provider:
         mock_provider.generate = slow_generate
         result = await service.generate(req)
 
@@ -54,7 +59,9 @@ async def test_generate_tracks_latency(service: InferenceService) -> None:
 async def test_generate_propagates_provider_error(service: InferenceService) -> None:
     req = ChatRequest(message="Hello", model="llama")
 
-    with patch("app.services.inference_service._provider") as mock_provider:
+    with patch(
+        "jarvis_model_router.services.inference_service._provider"
+    ) as mock_provider:
         mock_provider.generate = AsyncMock(side_effect=ProviderError("Ollama down"))
 
         with pytest.raises(ProviderError):
@@ -71,9 +78,12 @@ async def test_stream_yields_tokens(service: InferenceService) -> None:
 
     with (
         patch(
-            "app.routing.classifier._llm_classify", new_callable=AsyncMock
+            "jarvis_model_router.routing.classifier._llm_classify",
+            new_callable=AsyncMock,
         ) as mock_llm,
-        patch("app.services.inference_service._provider") as mock_provider,
+        patch(
+            "jarvis_model_router.services.inference_service._provider"
+        ) as mock_provider,
     ):
         mock_llm.return_value = "deepseek"
         mock_provider.stream = fake_stream

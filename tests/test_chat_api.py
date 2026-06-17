@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import AsyncMock, patch
 
-from app.schemas.response import ChatResponse
+from jarvis_model_router.schemas.response import ChatResponse
 
 
 @pytest.mark.anyio
@@ -13,7 +13,7 @@ async def test_chat_endpoint_success(client) -> None:
         latency_ms=100,
     )
 
-    with patch("app.api.chat._inference") as mock_inference:
+    with patch("jarvis_model_router.api.chat._inference") as mock_inference:
         mock_inference.generate = AsyncMock(return_value=mock_response)
 
         resp = await client.post(
@@ -54,7 +54,7 @@ async def test_chat_stream_endpoint(client) -> None:
         for token in ["Hello", " world"]:
             yield token
 
-    with patch("app.api.chat._inference") as mock_inference:
+    with patch("jarvis_model_router.api.chat._inference") as mock_inference:
         mock_inference.stream = fake_stream
 
         resp = await client.post(

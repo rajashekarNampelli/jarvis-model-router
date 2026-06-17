@@ -4,8 +4,8 @@ import asyncio.subprocess
 import psutil
 from fastapi import APIRouter
 
-from app.providers import _provider
-from app.schemas.response import HealthResponse, MemoryInfo
+from jarvis_model_router.providers import _provider
+from jarvis_model_router.schemas.response import HealthResponse, MemoryInfo
 
 router = APIRouter()
 
@@ -38,7 +38,7 @@ async def _gpu_info() -> str:
 
 def _health_monitor_summary() -> dict:
     try:
-        from app.main import health_monitor
+        from jarvis_model_router.main import health_monitor
 
         return health_monitor.get_summary() if health_monitor else {}
     except Exception:

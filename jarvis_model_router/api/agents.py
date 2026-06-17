@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
-from app.agents import (
+from jarvis_model_router.agents import (
     get_agent_descriptions,
     get_current_agent,
     set_current_agent,

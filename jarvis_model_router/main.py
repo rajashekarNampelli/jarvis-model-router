@@ -3,14 +3,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.api import chat, health, models, resilience
-from app.core.config import settings
-from app.core.exceptions import register_exception_handlers
-from app.core.logging import setup_logging
-from app.metrics.prometheus import router as metrics_router
-from app.middleware.request_logger import RequestLoggerMiddleware
-from app.resilience.health_monitor import HealthMonitor
-from app.providers import _provider
+from jarvis_model_router.api import chat, health, models, resilience
+from jarvis_model_router.core.config import settings
+from jarvis_model_router.core.exceptions import register_exception_handlers
+from jarvis_model_router.core.logging import setup_logging
+from jarvis_model_router.metrics.prometheus import router as metrics_router
+from jarvis_model_router.middleware.request_logger import RequestLoggerMiddleware
+from jarvis_model_router.resilience.health_monitor import HealthMonitor
+from jarvis_model_router.providers import _provider
 
 logger = logging.getLogger(__name__)
 
