@@ -64,8 +64,8 @@ async def test_chat_stream_endpoint(client) -> None:
 
     assert resp.status_code == 200
     assert "text/event-stream" in resp.headers.get("content-type", "")
-    assert "data: Hello" in resp.text
-    assert "data:  world" in resp.text
+    assert 'data: {"token": "Hello"}' in resp.text
+    assert 'data: {"token": " world"}' in resp.text
     assert "data: [DONE]" in resp.text
 
 

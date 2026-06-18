@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 
@@ -18,7 +20,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
 async def chat_stream(request: ChatRequest) -> StreamingResponse:
     async def sse_generator():
         async for token in _inference.stream(request):
-            yield f"data: {token}\n\n"
+            yield f"data: {json.dumps({'token': token})}\n\n"
         yield "data: [DONE]\n\n"
 
     return StreamingResponse(sse_generator(), media_type="text/event-stream")
