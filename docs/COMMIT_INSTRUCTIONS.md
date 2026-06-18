@@ -3,6 +3,19 @@
 ## When to Commit
 When the user says "commit my changes", "commit and push", or similar.
 
+## Git Identity
+
+Before any commit, verify git identity is properly configured:
+
+1. **Check** — `git config user.name` and `git config user.email`
+2. **If missing or auto-guessed** (e.g. `user@hostname.local`), set it:
+   - `git config --global user.name "Rajashekar Nampelli"`
+   - `git config --global user.email "rajashekar.nampelli@gmail.com"`
+3. **If the last commit has a bad identity** — `git commit --amend --reset-author --no-edit`
+4. **Then force-push** — `git push --force-with-lease`
+
+Never commit with an auto-guessed email like `raja@Rajashekars-MacBook-Pro.local`.
+
 ## Pre-flight Checks
 
 1. **Run unit tests** — `pytest -v` — all must pass before committing
@@ -86,5 +99,5 @@ updates
 ## Flow Summary
 
 ```
-pytest -> ruff -> git add -A -> git diff --cached --stat -> commit -> push -> report
+check git identity -> pytest -> ruff -> git add -A -> git diff --cached --stat -> commit -> push -> report
 ```
