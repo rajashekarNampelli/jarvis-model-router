@@ -1,0 +1,8 @@
+# Inherits runtime deps — dev/test/lint layers on top
+-r requirements.txt
+
+# Dev / test
+pytest==8.3.5
+pytest-asyncio==0.24.0
+anyio==4.9.0
+ruff==0.11.13

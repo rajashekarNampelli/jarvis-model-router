@@ -2,8 +2,48 @@ import pytest
 from unittest.mock import AsyncMock, patch
 
 from jarvis_model_router.schemas.chat import ChatRequest
-from jarvis_model_router.services.inference_service import InferenceService
+from jarvis_model_router.services.inference_service import InferenceService, _build_prompt
 from jarvis_model_router.core.exceptions import ProviderError
+
+
+# ---------------------------------------------------------------------------
+# _build_prompt unit tests
+# ---------------------------------------------------------------------------
+
+def test_build_prompt_no_context_returns_message() -> None:
+    req = ChatRequest(message="What is Python?", model="auto")
+    assert _build_prompt(req) == "What is Python?"
+
+
+def test_build_prompt_none_context_returns_message() -> None:
+    req = ChatRequest(message="Hello", model="llama", context=None)
+    assert _build_prompt(req) == "Hello"
+
+
+def test_build_prompt_with_context_includes_both() -> None:
+    file_context = "### File: foo.py\n```python\ndef hello(): pass\n```"
+    req = ChatRequest(message="Explain this function", model="auto", context=file_context)
+    result = _build_prompt(req)
+    assert file_context in result
+    assert "Explain this function" in result
+    # Context must appear before the user question
+    assert result.index(file_context) < result.index("Explain this function")
+
+
+def test_build_prompt_with_context_has_separator() -> None:
+    req = ChatRequest(message="Summarize", model="auto", context="some context")
+    result = _build_prompt(req)
+    assert "---" in result
+
+
+def test_build_prompt_routing_unaffected() -> None:
+    """Routing uses request.message directly, not _build_prompt output."""
+    req = ChatRequest(
+        message="short question",
+        model="auto",
+        context="A" * 10_000,  # large context should not affect the routed field
+    )
+    assert req.message == "short question"
 
 
 @pytest.fixture

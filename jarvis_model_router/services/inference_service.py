@@ -23,6 +23,21 @@ logger = get_logger(__name__)
 _router = RouterService()
 
 
+def _build_prompt(request: ChatRequest) -> str:
+    """Combine optional file context with the user message into a single prompt string.
+
+    Routing always runs on request.message so auto-routing is unaffected by context.
+    """
+    if not request.context:
+        return request.message
+    return (
+        "The following workspace files have been provided as context:\n\n"
+        f"{request.context}\n\n"
+        "---\n\n"
+        f"User question: {request.message}"
+    )
+
+
 class InferenceService:
     async def generate(self, request: ChatRequest) -> ChatResponse:
         request_id = str(uuid.uuid4())
@@ -33,7 +48,7 @@ class InferenceService:
         response_text = ""
 
         try:
-            response_text = await _provider.generate(ollama_model, request.message)
+            response_text = await _provider.generate(ollama_model, _build_prompt(request))
         except RateLimitError:
             success = False
             record_error(model_key, "rate_limit")
@@ -81,7 +96,7 @@ class InferenceService:
         token_buffer: list[str] = []
 
         try:
-            async for token in _provider.stream(ollama_model, request.message):
+            async for token in _provider.stream(ollama_model, _build_prompt(request)):
                 token_buffer.append(token)
                 yield token
         except RateLimitError:
